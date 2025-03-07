@@ -1,0 +1,10 @@
+[package]
+name = "term-view"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.31", features = ["derive"] }
+image = "0.25.5"
+termcolor = "1.4.1"
+termsize = "0.1.9"
