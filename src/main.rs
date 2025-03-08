@@ -8,6 +8,11 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 struct Args {
     #[arg(short, long)]
     image: std::path::PathBuf,
+
+    //#[arg(short, long)]
+    //height: Option<u32>,
+    #[arg(short, long)]
+    width: Option<u32>,
 }
 
 fn main() {
@@ -15,25 +20,34 @@ fn main() {
 
     //image
     let mut image = image::open(args.image).unwrap();
-    let (mut width, height) = image.dimensions();
+    let (mut image_width, image_height) = image.dimensions();
 
     // output
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     let mut c = ColorSpec::new();
 
-    // resize image to terminal width
-    let tsize = termsize::get().ok_or("error");
-    match tsize {
-        Ok(size) => {
-            let i = size.cols as u32;
-            if width > i {
-                println!("Resizing to {}x{}", i, height);
-                image = image.resize(i, height, imageops::FilterType::Nearest);
-                width = i;
+    if args.width.as_ref() == None {
+        // resize image to terminal width
+        let tsize = termsize::get().ok_or("error");
+        match tsize {
+            Ok(size) => {
+                let i = size.cols as u32;
+                if image_width > i {
+                    println!("Resizing to {}x{}", i, image_height);
+                    image = image.resize(i, image_height, imageops::FilterType::Nearest);
+                    image_width = i;
+                }
             }
-        }
-        Err(_) => {}
-    };
+            Err(_) => {}
+        };
+    } else {
+        image = image.resize(
+            args.width.unwrap(),
+            image_height,
+            imageops::FilterType::Nearest,
+        );
+        image_width = args.width.unwrap();
+    }
 
     // full block unicode character
     let chars = ["\u{2588}"];
@@ -50,7 +64,7 @@ fn main() {
             write!(&mut stdout, "{}", block).unwrap();
 
             // next line
-            if count == width {
+            if count == image_width {
                 writeln!(&mut stdout, "").unwrap();
                 count = 0;
             }
