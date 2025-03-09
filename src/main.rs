@@ -20,25 +20,28 @@ fn main() {
 
     //image
     let mut image = image::open(args.image).unwrap();
-    let (image_width, image_height) = image.dimensions();
 
     if args.width.as_ref() == None {
-        // resize image to terminal width
-        let tsize = termsize::get().ok_or("error");
+        let tsize = termsize::get().ok_or("Error getting terminal size.");
+        // resize image to fit terminal
         match tsize {
             Ok(size) => {
-                let i = size.cols as u32;
-                if image_width > i {
-                    image = image.resize(i, image_height, imageops::FilterType::Gaussian);
+                if image.dimensions().1 > size.rows as u32 {
+                    image = image.resize(
+                        size.cols as u32,
+                        size.rows as u32 * 2 - 10,
+                        imageops::FilterType::Triangle,
+                    );
                 }
             }
             Err(_) => {}
         };
     } else {
+        //resize image to defined size
         image = image.resize(
             args.width.unwrap(),
-            image_height,
-            imageops::FilterType::Nearest,
+            image.dimensions().1,
+            imageops::FilterType::Triangle,
         );
     }
 

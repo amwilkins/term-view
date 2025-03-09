@@ -6,7 +6,6 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 pub fn output_image(image: &DynamicImage) {
     // upper and full block unicode character
     let chars = ["\u{2580}", "\u{2588}"];
-    println!("Image size: {:?}", image.dimensions());
 
     // output
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
@@ -14,6 +13,7 @@ pub fn output_image(image: &DynamicImage) {
 
     let mut count = 0;
     for p in image.pixels() {
+        //iterate over every odd line
         if (p.1 % 2) == 1 {
             continue;
         }
