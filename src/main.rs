@@ -21,7 +21,7 @@ fn main() {
     //image
     let mut image = image::open(args.image).unwrap();
 
-    if args.width.as_ref() == None {
+    if (args.width.as_ref() == None) && (args.height.as_ref() == None) {
         let tsize = termsize::get().ok_or("Error getting terminal size.");
         // resize image to fit terminal
         match tsize {
@@ -39,8 +39,8 @@ fn main() {
     } else {
         //resize image to defined size
         image = image.resize(
-            args.width.unwrap(),
-            image.dimensions().1,
+            args.width.unwrap_or(image.dimensions().0),
+            args.height.unwrap_or(image.dimensions().1),
             imageops::FilterType::Triangle,
         );
     }
